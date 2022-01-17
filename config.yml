@@ -1,5 +1,5 @@
 upload_scale: 0.5
 fps: 5
 
-process_token: lAGyxWMuh6lCXUHXMc2K
-id_token: some_token_1
+process_token: stream_token_goes_here
+id_token: id_for_the_stream_can_be_any_thing
