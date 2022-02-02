@@ -1,3 +1,4 @@
+import os
 import requests
 import cv2
 import json
@@ -47,7 +48,10 @@ def process_image( image, params, dd, q, timestamp ):
         q.put(data)
 
 if __name__=="__main__" :
-    params = Params('config.yml')
+    if os.path.exists('config.local.yml') :
+        params = Params('config.local.yml')
+    else :
+        params = Params('config.yml')
 
     interval = 1.0 / params.fps
     start_time = time.time()

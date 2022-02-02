@@ -43,6 +43,11 @@ class drawer :
                             var_str = '%s %g' % ( key, round(item) )
                             y_loc += self._write_text(image, var_str, (b[2],b[1] + y_loc))
 
+                    if 'attributes' in obj :
+                        for key, item in obj["attributes"].items() :
+                            var_str = '%s %s' % ( key, item )
+                            y_loc += self._write_text(image, var_str, (b[2],b[1] + y_loc))
+
                     if 'garments' in obj :
                         for garment in obj['garments'] :
                             gb = np.round(np.array(garment['roi'])/self._scale).astype(np.int32)

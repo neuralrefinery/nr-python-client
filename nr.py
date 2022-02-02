@@ -1,3 +1,4 @@
+import os
 import yaml
 import cv2
 import json
@@ -12,7 +13,10 @@ class Params :
 
 class auth :
     def __init__( self ):
-        auth = Params('auth.yml')
+        if os.path.exists('auth.local.yml') :
+            auth = Params('auth.local.yml')
+        else :
+            auth = Params('auth.yml')
 
         self._auth = {}
         self._auth['username'] = auth.username
