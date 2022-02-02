@@ -56,7 +56,7 @@ if __name__=="__main__" :
 
 
     # This is the path to the folder containing the images
-    images_path = "/Users/heydar/Downloads/images"
+    images_path = "/Users/heydar/Downloads/images-2"
 
     images = []
 
@@ -106,9 +106,6 @@ if __name__=="__main__" :
                 cv2.imshow("Image", data['image'])
                 cv2.waitKey(1)
                 last_timestamp = data["timestamp"]
-
-
-
 
         delay = (images[i+1]['timestamp'] - images[i]['timestamp']).total_seconds()
         time.sleep( delay )
