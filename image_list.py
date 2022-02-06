@@ -1,4 +1,5 @@
 import os
+import argparse
 import requests
 import datetime
 import cv2
@@ -48,15 +49,23 @@ def process_image( image, params, dd, q, timestamp ):
         data["timestamp"] = timestamp
         q.put(data)
 
+def parse_commandline():
+    parser = argparse.ArgumentParser(description="Image List Detection")
+    parser.add_argument('-p','--path',help='Path to the images directory',
+                        required=True, type=str )
+
+    args = parser.parse_args()
+
+    return args
+
 if __name__=="__main__" :
     if os.path.exists('config.local.yml') :
         params = Params('config.local.yml')
     else :
         params = Params('config.yml')
 
-
-    # This is the path to the folder containing the images
-    images_path = "/Users/heydar/Downloads/images-2"
+    args = parse_commandline()
+    images_path = args.path
 
     images = []
 
