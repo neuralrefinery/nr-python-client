@@ -6,17 +6,27 @@ import requests
 
 class Params :
     def __init__( self, config_file ):
-        self.params = yaml.safe_load(open(config_file).read())
+        with open( config_file, 'r' ) as ff :
+            self.params = yaml.load( ff, yaml.FullLoader )
+
+    def set( self, key, value ):
+        self.params[key] = value
 
     def __getattr__( self, item ):
         return self.params.get(item, None)
 
+    def save( self, filename ):
+        with open( filename, 'w' ) as ff :
+            yaml.dump( self.params, ff )
+
 class auth :
-    def __init__( self ):
-        if os.path.exists('auth.local.yml') :
-            auth = Params('auth.local.yml')
-        else :
-            auth = Params('auth.yml')
+    def __init__( self, auth=None ):
+
+        if auth is None :
+            if os.path.exists('auth.local.yml') :
+                auth = Params('auth.local.yml')
+            else :
+                auth = Params('auth.yml')
 
         self._auth = {}
         self._auth['username'] = auth.username
@@ -44,16 +54,13 @@ class auth :
         while not done :
             try :
                 headers['Authorization'] = 'Bearer %s' % ( self._auth['token'] )
-
                 response = requests.post( url, data=data, headers=headers )
-
                 assert response.status_code != 401, "Unauthorized"
                 done = True
             except :
                 self._get_token()
 
         return response
-
 
 class api( auth ) :
     def __init__( self ):

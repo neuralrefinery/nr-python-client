@@ -64,7 +64,7 @@ if __name__=="__main__" :
     t0 = time.time()
     queue = Queue()
 
-    dd = drawer( params.upload_scale )
+    dd = drawer( params.upload_scale, params.draw_scale )
     last_timestamp = -1
 
     while True :
@@ -74,9 +74,6 @@ if __name__=="__main__" :
             if current_time - start_time + diff_time >= interval :
                 diff_time = max( [ current_time - start_time - interval, 0.0 ] )
                 start_time = current_time
-                
-                #nf += 1
-                #print( nf / ( time.time() - t0 ) )
 
                 t = threading.Thread( target=process_image, args=( frame, params, dd, queue, time.time() ) )
                 t.start()

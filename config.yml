@@ -1,5 +1,7 @@
 upload_scale: 0.5
+drawer_scale: 0.1
 fps: 5
+use_image: false
 
 process_token: stream_token_goes_here
 id_token: id_for_the_stream_can_be_any_thing

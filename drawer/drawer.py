@@ -62,47 +62,26 @@ class drawer :
                     if 'keypoints' in obj :
                         keypoints = np.array(obj['keypoints'])
 
-                        x_arr = np.round(keypoints[:,0] / self._scale).astype( int ) 
-                        y_arr = np.round(keypoints[:,1] / self._scale).astype( int ) 
+                        x_arr = np.round(keypoints[:,0] / self._scale).astype( int )
+                        y_arr = np.round(keypoints[:,1] / self._scale).astype( int )
                         visible = keypoints[:,2]
 
+                        # Drawing lines if the object type is person
+                        if obj_type == "person" :
+                            for pair in keypoints_data.coco_pairs :
+                                v0 = visible[ pair[0] ]
+                                v1 = visible[ pair[1] ]
+
+                                if v0 >= 0.15 and v1 >= 0.15 :
+                                    x0, y0 = x_arr[ pair[0] ], y_arr[ pair[0] ]
+                                    x1, y1 = x_arr[ pair[1] ], y_arr[ pair[1] ]
+                                    cv2.line( image, (x0,y0), (x1,y1), (0,0,255), 2 )
+
+                        # Drawing the keypoints
                         for x,y,v in zip( x_arr, y_arr, visible ):
-                            if v > 0.5 :
-                                cv2.circle( image, (x,y), 5, (0,0,int(255*v)),2)
+                            if v > 0.15 :
+                                cv2.circle( image, (x,y), 5, (0,int(255*v),0),2)
 
-                    if 'keypoints_old' in obj :
-                        keypoints = obj['keypoints']
-
-                        scores = np.array(keypoints['scores'])
-                        points = np.array(keypoints['points'])
-                        valid = np.array(keypoints['valid'])
-
-                        for pair in keypoints_data.coco_pairs :
-                            s0 = scores[ pair[0] ]
-                            s1 = scores[ pair[1] ]
-
-                            if s0 >= 0.15 and s1 >= 0.15 :
-                                v0 = valid[ pair[0] ]
-                                v1 = valid[ pair[1] ]
-
-                                p0 = (np.round(points[pair[0]])/self._scale).astype(np.int32)
-                                p1 = (np.round(points[pair[1]])/self._scale).astype(np.int32)
-
-                                if v0 == 1 or v1 == 1 :
-                                    cv2.line( image, (p0[0], p0[1]), (p1[0], p1[1]), (0,0,255), 2 )
-                                else :
-                                    cv2.line( image, (p0[0], p0[1]), (p1[0], p1[1]), (255,0,0), 2 )
-
-
-
-                        for s,p,v in zip(scores, points, valid):
-                            if s > 0.15 :
-                                p = (np.round(p)/self._scale).astype(np.int32)
-
-                                if v == 1 :
-                                    cv2.circle( image, (p[0],p[1]), 5, (0,0,int(255 * s)),2)
-                                else :
-                                    cv2.circle( image, (p[0],p[1]), 5, (int(255 * s),0,0),2)
 
         title_y_loc += self._write_text( image, "Log", (0,title_y_loc), font_scale=0.5, bg_color=(255,255,255) )
 
@@ -218,16 +197,13 @@ class drawer :
         cname = meta.get('ContentName','noface.jpg')
         return self._assets[ cname ]
 
-    def __init__( self, scale ):
-        self._scale = scale
+    def __init__( self, upload_scale, draw_scale ):
+        self._upload_scale = upload_scale
+        self._draw_scale = draw_scale
+        self._scale = upload_scale / draw_scale
         self._draw = {}
         self._draw['log'] = self._draw_log
         self._draw['message'] = self._draw_message
-        #self._draw['output'] = self._draw_output
-        #self._draw['count'] = self._draw_count
-        #self._draw['region_check'] = self._draw_region_check
-        #self._draw['content'] = self._draw_content
-        #self._draw['engagement'] = self._draw_engagement
 
         self._assets = {}
         self._assets['noface.jpg'] = cv2.imread('assets/noface.jpg')
@@ -241,6 +217,8 @@ class drawer :
             image = image_src
         else :
             image = np.zeros_like( image_src )
+
+        image = cv2.resize(image, None, None, self._draw_scale, self._draw_scale)
 
         data = meta.get("data", {})
 
