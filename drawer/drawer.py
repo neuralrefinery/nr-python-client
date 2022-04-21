@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 
 from . import keypoints_data
+from . import tools
+
+from matplotlib import pyplot as pp
 
 class drawer :
     def _write_text( self, image, label, p, font_scale = 0.5, bg_color=(0, 0, 255), label_color=(0, 0, 0) ):
@@ -22,7 +25,11 @@ class drawer :
                 obj_type = obj['class']
 
                 if 'roi' in obj :
-                    b = np.round(np.array(obj['roi'])/self._scale).astype(np.int32)
+                    b_raw = np.array(obj['roi'])/self._scale
+
+                    b_width = b_raw[2] - b_raw[0]
+                    b_height = b_raw[3] - b_raw[1]
+                    b = np.round(b_raw).astype(np.int32)
                     box_valid = int(obj['valid'])
 
                     str = '%s %.2f' % ( obj_type, obj['score'])
@@ -40,7 +47,7 @@ class drawer :
 
                     if 'variables' in obj :
                         for key, item in obj["variables"].items() :
-                            var_str = '%s %g' % ( key, round(item) )
+                            var_str = '%s %g' % ( key, round(item,5) )
                             y_loc += self._write_text(image, var_str, (b[2],b[1] + y_loc))
 
                     if 'attributes' in obj :
@@ -81,6 +88,41 @@ class drawer :
                         for x,y,v in zip( x_arr, y_arr, visible ):
                             if v > 0.15 :
                                 cv2.circle( image, (x,y), 5, (0,int(255*v),0),2)
+
+                    if 'keypoints3d' in obj :
+                        keypoints3d = np.array(obj['keypoints3d'])
+                        x_arr = np.round(keypoints3d[:,0] / self._scale).astype( int )
+                        y_arr = np.round(keypoints3d[:,1] / self._scale).astype( int )
+                        z_arr = np.round(keypoints3d[:,2] / self._scale).astype( int )
+
+                        # Drawing the keypoints
+                        for x,y in zip( x_arr, y_arr ):
+                            cv2.circle( image, (x,y), 5, (0,255,0),2)
+
+                    if 'center3d' in obj :
+                        center3d = np.array(obj['center3d'])
+                        x = np.round(center3d[0] / self._scale).astype( int )
+                        y = np.round(center3d[1] / self._scale).astype( int )
+                        z = np.round(center3d[2] / self._scale).astype( int )
+
+                        cv2.circle(image, (x,y), 5, (255,0,0),2)
+
+                        pitch = obj['variables']['pitch'] * -1
+                        roll = obj['variables']['roll'] * -1
+                        yaw = obj['variables']['yaw']
+
+                        axes = tools.generate_axes( b_height, (pitch, yaw, roll), center3d/self._scale )
+                        axes = np.round( axes ).astype(int)
+
+                        c = axes[0]
+                        x = axes[1]
+                        y = axes[2]
+                        z = axes[3]
+
+                        cv2.line(image,(c[0], c[1]),(x[0], x[1]),(0,0,255),2)
+                        cv2.line(image,(c[0], c[1]),(y[0], y[1]),(0,255,0),2)
+                        cv2.line(image,(c[0], c[1]),(z[0], z[1]),(255,0,0),2)
+
 
 
         title_y_loc += self._write_text( image, "Log", (0,title_y_loc), font_scale=0.5, bg_color=(255,255,255) )
@@ -206,10 +248,10 @@ class drawer :
         self._draw['message'] = self._draw_message
 
         self._assets = {}
-        self._assets['noface.jpg'] = cv2.imread('assets/noface.jpg')
-        self._assets['female.jpg'] = cv2.imread('assets/female.jpg')
-        self._assets['male.jpg'] = cv2.imread('assets/male.jpg')
-        self._assets['group.jpg'] = cv2.imread('assets/group.jpg')
+        #self._assets['noface.jpg'] = cv2.imread('assets/noface.jpg')
+        #self._assets['female.jpg'] = cv2.imread('assets/female.jpg')
+        #self._assets['male.jpg'] = cv2.imread('assets/male.jpg')
+        #self._assets['group.jpg'] = cv2.imread('assets/group.jpg')
 
     def draw( self, image_src, meta, show_scores=True, use_image=False ):
 
