@@ -20,6 +20,8 @@ class drawer :
     def _draw_log( self, image, meta, show_scores=True, title_y_loc=0 ):
         y_loc = 0
 
+        print( meta.keys() )
+
         if 'objects' in meta :
             for obj in meta['objects'] :
                 obj_type = obj['class']
@@ -72,6 +74,7 @@ class drawer :
                         x_arr = np.round(keypoints[:,0] / self._scale).astype( int )
                         y_arr = np.round(keypoints[:,1] / self._scale).astype( int )
                         visible = keypoints[:,2]
+                        valid = keypoints[:,3]
 
                         # Drawing lines if the object type is person
                         if obj_type == "person" :
@@ -85,9 +88,13 @@ class drawer :
                                     cv2.line( image, (x0,y0), (x1,y1), (0,0,255), 2 )
 
                         # Drawing the keypoints
-                        for x,y,v in zip( x_arr, y_arr, visible ):
-                            if v > 0.15 :
-                                cv2.circle( image, (x,y), 5, (0,int(255*v),0),2)
+                        for x,y,vi, val in zip( x_arr, y_arr, visible, valid ):
+                            if vi > 0.15 :
+                                if val == 1.0 :
+                                    cv2.circle( image, (x,y), 5, (0,int(255*vi),0),2)
+                                else :
+                                    cv2.circle( image, (x,y), 5, (255,0,0),2)
+
 
                     if 'keypoints3d' in obj :
                         keypoints3d = np.array(obj['keypoints3d'])

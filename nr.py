@@ -86,3 +86,11 @@ class api( auth ) :
         return self._send_request( '%s/api/results/' % ( self._server ), 
                                    data="", 
                                    headers=headers )
+
+    def last_results( self, token ):
+        headers = {}
+        headers["Token"] = token
+
+        response = requests.get( '%s/api/last-ref-results/' % ( self._server ), headers=headers )
+
+
