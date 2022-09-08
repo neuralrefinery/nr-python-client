@@ -38,7 +38,7 @@ class SubmitThread( threading.Thread ):
 
         t1 = time.time()
 
-        #print( t1 - t0 )
+        print( t1 - t0 )
 
         return ref
 
