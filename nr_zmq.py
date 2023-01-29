@@ -4,7 +4,7 @@ import threading
 import queue
 import cv2
 import json
-
+import traceback
 
 class SubmitThread( threading.Thread ):
     def __init__( self, context, server, idx, submit_queue, mutex, reference_dict ):
@@ -109,8 +109,12 @@ class FetchThread( threading.Thread ):
                     ref = self._reference_dict[ts]
                     res = self._fetch(ref)
 
-                    data['meta'] = json.loads(res)
-                    self._draw_queue.put(data)
+                    try :
+                        data['meta'] = json.loads(res)
+                        self._draw_queue.put(data)
+                    except :
+                        traceback.print_exc()
+
 
                     del self._reference_dict[ts]
             else :

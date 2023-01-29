@@ -34,12 +34,14 @@ class auth :
         self._auth['token'] = ""
         self._server = auth.server
 
+        self._s = requests.Session()
+
     def _get_token( self ):
         data = {}
         data["username"] = self._auth['username']
         data["password"] = self._auth['password']
 
-        response = requests.post( '%s/api/token-auth/' % ( self._server ), data=data )
+        response = self._s.post( '%s/api/token-auth/' % ( self._server ), data=data )
 
         if response.status_code == 200 :
             content = json.loads( response.content.decode() )

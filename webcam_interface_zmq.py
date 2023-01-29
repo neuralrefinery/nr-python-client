@@ -25,7 +25,7 @@ class CameraThreadZmq(threading.Thread):
         self._process_token = params.process_token
         self._process_id = params.id_token
 
-        self._module = Module(auth.zmq_server, 5, 5, 0.2, self._frames_queue )
+        self._module = Module(auth.zmq_server, 5, 5, 0.5, self._frames_queue )
 
     def stop( self ):
         return self._stop_event.set()
